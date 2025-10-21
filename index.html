@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco Hero - Save the Planet!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: #87CEEB;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #canvas {
+            display: block;
+        }
+
+        #topBar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(50, 50, 50, 0.9));
+            border-bottom: 4px solid #4CAF50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 10;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        #ui {
+            display: flex;
+            gap: 40px;
+            color: white;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            font-weight: bold;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 2px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .stat-value {
+            color: #4CAF50;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        #timer {
+            font-size: 36px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.3);
+            padding: 15px 40px;
+            border-radius: 15px;
+            font-weight: bold;
+            border: 3px solid rgba(76, 175, 80, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #timer.warning {
+            color: #FF5252;
+            animation: pulse 0.5s infinite;
+            border-color: #FF5252;
+            background: rgba(255, 82, 82, 0.2);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        #strikes {
+            font-size: 32px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .strike {
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .strike.lost {
+            animation: heartBreak 0.5s;
+        }
+
+        @keyframes heartBreak {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(-10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        #startScreen, #gameOverScreen, #levelCompleteScreen, #victoryScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 100;
+        }
+
+        #victoryScreen {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        h1 {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .info {
+            font-size: 18px;
+            margin: 8px 0;
+            max-width: 700px;
+            text-align: center;
+            line-height: 1.6;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        button {
+            font-size: 28px;
+            padding: 18px 50px;
+            margin-top: 30px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.4);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .controls {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #finalScore, #levelTitle {
+            font-size: 48px;
+            color: #FFD700;
+            margin: 20px 0;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+        }
+
+        .key {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 0 3px;
+            font-weight: bold;
+        }
+
+        .level-info {
+            font-size: 24px;
+            margin: 15px 0;
+            color: #FFD700;
+        }
+
+        .team-section {
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.3);
+            margin-top: 30px;
+        }
+
+        .team-title {
+            font-size: 20px;
+            color: #FFD700;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .team-members {
+            font-size: 16px;
+            color: #ffffff;
+            line-height: 1.8;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .team-member {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="canvas"></canvas>
+        
+        <div id="topBar">
+            <div id="ui">
+                <div class="stat">
+                    <span>📍 Level:</span>
+                    <span class="stat-value" id="level">1</span><span>/3</span>
+                </div>
+                <div class="stat">
+                    <span>🌍 Cleanliness:</span>
+                    <span class="stat-value" id="cleanliness">0</span><span>%</span>
+                </div>
+                <div class="stat">
+                    <span>⭐ Score:</span>
+                    <span class="stat-value" id="score">0</span>
+                </div>
+                <div class="stat">
+                    <span>📦 Holding:</span>
+                    <span class="stat-value" id="holding">Nothing</span>
+                </div>
+            </div>
+
+            <div id="timer">
+                <span>⏱️</span>
+                <span id="timeLeft">90</span><span>s</span>
+            </div>
+
+            <div id="strikes">
+                <span class="strike">❤️</span>
+                <span class="strike">❤️</span>
+                <span class="strike">❤️</span>
+            </div>
+        </div>
+
+        <div id="startScreen">
+            <h1>🌍 ECO HERO 🌱</h1>
+            <p class="info">🎮 Welcome, Eco Hero! The planet needs your help!</p>
+            <p class="info">♻️ Collect trash and sort it correctly to clean the environment</p>
+            <div class="controls">
+                <p class="info"><strong>🕹️ CONTROLS:</strong></p>
+                <p class="info"><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> - Move your character</p>
+                <p class="info"><span class="key">SPACE</span> - Pick up item / Drop into bin</p>
+                <p class="info">⚠️ 3 Wrong Sorts = Game Over!</p>
+            </div>
+            <p class="info">🎯 Complete 3 levels by reaching 100% cleanliness!</p>
+            <p class="info">⏱️ Beat the timer on each level!</p>
+            
+            <div class="team-section">
+                <div class="team-title">👥 Development Team</div>
+                <div class="team-members">
+                    <div class="team-member">خالد شوقي</div>
+                    <div class="team-member">زايد عبدالله</div>
+                    <div class="team-member">سالم سلطان</div>
+                    <div class="team-member">محمد حكيم</div>
+                    <div class="team-member">سالم راشد</div>
+                </div>
+            </div>
+
+            <button id="startBtn">🚀 START GAME</button>
+        </div>
+
+        <div id="levelCompleteScreen" class="hidden">
+            <h1>🎉 LEVEL COMPLETE! 🎉</h1>
+            <p id="levelTitle" class="level-info"></p>
+            <p class="info">🌟 Amazing work, Eco Hero!</p>
+            <p class="info" id="levelStats"></p>
+            <button id="nextLevelBtn">➡️ NEXT LEVEL</button>
+        </div>
+
+        <div id="victoryScreen" class="hidden">
+            <h1>🏆 VICTORY! 🏆</h1>
+            <p class="level-info">You saved the entire planet!</p>
+            <p id="finalScore"></p>
+            <p class="info">🌍 You're a true Environmental Hero!</p>
+            <p class="info">Thanks for learning about recycling!</p>
+            <button id="victoryRestartBtn">🔄 PLAY AGAIN</button>
+        </div>
+
+        <div id="gameOverScreen" class="hidden">
+            <h1>💔 GAME OVER!</h1>
+            <p id="gameOverReason"></p>
+            <p id="gameOverScore"></p>
+            <p class="info">🌱 Every recycling effort counts!</p>
+            <p class="info">Keep learning and try again!</p>
+            <button id="gameOverRestartBtn">🔄 TRY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+
+        const levels = [
+            { 
+                name: 'City Park', 
+                time: 90, 
+                trashCount: 12,
+                background: { sky: '#87CEEB', ground: '#90EE90' }
+            },
+            { 
+                name: 'Beach Cleanup', 
+                time: 75, 
+                trashCount: 15,
+                background: { sky: '#87CEEB', ground: '#F4A460' }
+            },
+            { 
+                name: 'Forest Reserve', 
+                time: 60, 
+                trashCount: 18,
+                background: { sky: '#87CEEB', ground: '#228B22' }
+            }
+        ];
+
+        let gameState = {
+            score: 0,
+            cleanliness: 0,
+            strikes: 0,
+            isPlaying: false,
+            heldItem: null,
+            currentLevel: 0,
+            timeLeft: 90,
+            timerInterval: null
+        };
+
+        const player = {
+            x: 0,
+            y: 0,
+            width: 50,
+            height: 60,
+            speed: 6
+        };
+
+        function initPlayer() {
+            player.x = canvas.width / 2 - player.width / 2;
+            player.y = canvas.height / 2 - player.height / 2;
+        }
+        initPlayer();
+
+        const trashTypes = [
+            { type: 'plastic', color: '#FFD93D', bin: 'plastic', emoji: '🥤', name: 'Plastic' },
+            { type: 'paper', color: '#A0C4FF', bin: 'paper', emoji: '📄', name: 'Paper' },
+            { type: 'glass', color: '#95E1D3', bin: 'glass', emoji: '🍾', name: 'Glass' },
+            { type: 'organic', color: '#C9A68A', bin: 'organic', emoji: '🍎', name: 'Organic' }
+        ];
+
+        const powerUps = [
+            { type: 'energy', emoji: '⚡', name: 'Energy Drink', color: '#FF6B6B', effect: 'speed' }
+        ];
+
+        const binWidth = 90;
+        const binHeight = 110;
+        let bins = [];
+
+        function initBins() {
+            const spacing = (canvas.width - (binWidth * 4)) / 5;
+            bins = [
+                { type: 'plastic', x: spacing, y: canvas.height - binHeight - 30, color: '#FFD93D', label: '🥤 Plastic' },
+                { type: 'paper', x: spacing * 2 + binWidth, y: canvas.height - binHeight - 30, color: '#A0C4FF', label: '📄 Paper' },
+                { type: 'glass', x: spacing * 3 + binWidth * 2, y: canvas.height - binHeight - 30, color: '#95E1D3', label: '🍾 Glass' },
+                { type: 'organic', x: spacing * 4 + binWidth * 3, y: canvas.height - binHeight - 30, color: '#C9A68A', label: '🍎 Organic' }
+            ];
+        }
+
+        let trashItems = [];
+        const keys = {};
+
+        let speedBoostActive = false;
+        let speedBoostTimer = 0;
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            
+            if (e.key === ' ' && gameState.isPlaying) {
+                e.preventDefault();
+                handleSpace();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initBins();
+            initPlayer();
+        });
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('nextLevelBtn').addEventListener('click', nextLevel);
+        document.getElementById('victoryRestartBtn').addEventListener('click', restartGame);
+        document.getElementById('gameOverRestartBtn').addEventListener('click', restartGame);
+
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            gameState.isPlaying = true;
+            gameState.score = 0;
+            gameState.cleanliness = 0;
+            gameState.strikes = 0;
+            gameState.heldItem = null;
+            gameState.currentLevel = 0;
+            trashItems = [];
+            
+            startLevel();
+        }
+
+        function startLevel() {
+            const level = levels[gameState.currentLevel];
+            gameState.timeLeft = level.time;
+            gameState.cleanliness = 0;
+            trashItems = [];
+            speedBoostActive = false;
+            speedBoostTimer = 0;
+            
+            initBins();
+            
+            for (let i = 0; i < level.trashCount; i++) {
+                spawnTrash();
+            }
+            
+            // Spawn 1-2 energy drinks per level
+            const energyCount = Math.floor(Math.random() * 2) + 1;
+            for (let i = 0; i < energyCount; i++) {
+                spawnPowerUp();
+            }
+            
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            gameState.timerInterval = setInterval(updateTimer, 1000);
+            
+            updateUI();
+            updateStrikes();
+            gameState.isPlaying = true;
+            gameLoop();
+        }
+
+        function updateTimer() {
+            if (!gameState.isPlaying) return;
+            
+            gameState.timeLeft--;
+            document.getElementById('timeLeft').textContent = gameState.timeLeft;
+            
+            const timerElement = document.getElementById('timer');
+            if (gameState.timeLeft <= 10) {
+                timerElement.classList.add('warning');
+            } else {
+                timerElement.classList.remove('warning');
+            }
+            
+            if (gameState.timeLeft <= 0) {
+                clearInterval(gameState.timerInterval);
+                gameOver('time');
+            }
+        }
+
+        function nextLevel() {
+            document.getElementById('levelCompleteScreen').classList.add('hidden');
+            gameState.currentLevel++;
+            
+            if (gameState.currentLevel >= levels.length) {
+                victory();
+            } else {
+                startLevel();
+            }
+        }
+
+        function victory() {
+            gameState.isPlaying = false;
+            clearInterval(gameState.timerInterval);
+            document.getElementById('finalScore').textContent = `⭐ Final Score: ${gameState.score} ⭐`;
+            document.getElementById('victoryScreen').classList.remove('hidden');
+        }
+
+        function levelComplete() {
+            gameState.isPlaying = false;
+            clearInterval(gameState.timerInterval);
+            
+            const timeBonus = gameState.timeLeft * 5;
+            gameState.score += timeBonus;
+            
+            const level = levels[gameState.currentLevel];
+            document.getElementById('levelTitle').textContent = `${level.name} Cleaned! ✨`;
+            document.getElementById('levelStats').textContent = 
+                `Time Remaining: ${gameState.timeLeft}s | Time Bonus: +${timeBonus} points`;
+            document.getElementById('levelCompleteScreen').classList.remove('hidden');
+        }
+
+        function restartGame() {
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('victoryScreen').classList.add('hidden');
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            startGame();
+        }
+
+        function spawnTrash() {
+            const type = trashTypes[Math.floor(Math.random() * trashTypes.length)];
+            
+            let x, y;
+            let validPosition = false;
+            let attempts = 0;
+            
+            while (!validPosition && attempts < 50) {
+                x = Math.random() * (canvas.width - 100) + 50;
+                y = Math.random() * (canvas.height - 300) + 50;
+                
+                validPosition = true;
+                
+                for (let bin of bins) {
+                    const dist = Math.hypot(x - bin.x, y - bin.y);
+                    if (dist < 120) {
+                        validPosition = false;
+                        break;
+                    }
+                }
+                
+                const distPlayer = Math.hypot(x - player.x, y - player.y);
+                if (distPlayer < 100) {
+                    validPosition = false;
+                }
+                
+                attempts++;
+            }
+            
+            trashItems.push({
+                type: type.type,
+                x: x,
+                y: y,
+                width: 35,
+                height: 35,
+                color: type.color,
+                bin: type.bin,
+                emoji: type.emoji,
+                name: type.name,
+                isTrash: true
+            });
+        }
+
+        function spawnPowerUp() {
+            const powerUp = powerUps[0];
+            
+            let x, y;
+            let validPosition = false;
+            let attempts = 0;
+            
+            while (!validPosition && attempts < 50) {
+                x = Math.random() * (canvas.width - 100) + 50;
+                y = Math.random() * (canvas.height - 300) + 50;
+                
+                validPosition = true;
+                
+                for (let bin of bins) {
+                    const dist = Math.hypot(x - bin.x, y - bin.y);
+                    if (dist < 120) {
+                        validPosition = false;
+                        break;
+                    }
+                }
+                
+                const distPlayer = Math.hypot(x - player.x, y - player.y);
+                if (distPlayer < 100) {
+                    validPosition = false;
+                }
+                
+                attempts++;
+            }
+            
+            trashItems.push({
+                type: powerUp.type,
+                x: x,
+                y: y,
+                width: 35,
+                height: 35,
+                color: powerUp.color,
+                emoji: powerUp.emoji,
+                name: powerUp.name,
+                effect: powerUp.effect,
+                isPowerUp: true
+            });
+        }
+
+        function handleSpace() {
+            if (!gameState.heldItem) {
+                for (let i = 0; i < trashItems.length; i++) {
+                    const item = trashItems[i];
+                    const distance = Math.hypot(
+                        player.x + player.width/2 - (item.x + item.width/2),
+                        player.y + player.height/2 - (item.y + item.height/2)
+                    );
+                    
+                    if (distance < 60) {
+                        if (item.isPowerUp) {
+                            // Pick up power up
+                            activatePowerUp(item);
+                            trashItems.splice(i, 1);
+                            playSound('pickup');
+                            updateUI();
+                            checkLevelComplete();
+                        } else {
+                            // Pick up trash
+                            gameState.heldItem = trashItems.splice(i, 1)[0];
+                            playSound('pickup');
+                            updateUI();
+                            checkLevelComplete();
+                        }
+                        return;
+                    }
+                }
+            } else {
+                for (let bin of bins) {
+                    const distance = Math.hypot(
+                        player.x + player.width/2 - (bin.x + binWidth/2),
+                        player.y + player.height/2 - (bin.y + binHeight/2)
+                    );
+                    
+                    if (distance < 100) {
+                        if (gameState.heldItem.bin === bin.type) {
+                            gameState.score += 10;
+                            gameState.cleanliness = Math.min(100, gameState.cleanliness + (100 / levels[gameState.currentLevel].trashCount));
+                            playSound('success');
+                            
+                            gameState.heldItem = null;
+                            updateUI();
+                            checkLevelComplete();
+                        } else {
+                            gameState.strikes++;
+                            updateStrikes();
+                            playSound('wrong');
+                            
+                            if (gameState.strikes >= 3) {
+                                gameOver('strikes');
+                                return;
+                            }
+                            
+                            gameState.heldItem = null;
+                            updateUI();
+                            checkLevelComplete();
+                        }
+                        return;
+                    }
+                }
+                
+                trashItems.push({
+                    ...gameState.heldItem,
+                    x: player.x,
+                    y: player.y
+                });
+                gameState.heldItem = null;
+                updateUI();
+            }
+        }
+
+        function activatePowerUp(powerUp) {
+            if (powerUp.effect === 'speed') {
+                speedBoostActive = true;
+                speedBoostTimer = 8; // 8 seconds
+                playSound('powerup');
+            }
+        }
+
+        function updateSpeedBoost() {
+            if (speedBoostActive) {
+                speedBoostTimer--;
+                if (speedBoostTimer <= 0) {
+                    speedBoostActive = false;
+                }
+            }
+        }
+
+        function checkLevelComplete() {
+            if (trashItems.length === 0 && !gameState.heldItem) {
+                levelComplete();
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('level').textContent = gameState.currentLevel + 1;
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('cleanliness').textContent = Math.floor(gameState.cleanliness);
+            document.getElementById('holding').textContent = gameState.heldItem 
+                ? gameState.heldItem.emoji + ' ' + gameState.heldItem.name
+                : 'Nothing';
+        }
+
+        function updateStrikes() {
+            const strikeElements = document.querySelectorAll('.strike');
+            strikeElements.forEach((el, i) => {
+                el.textContent = i < (3 - gameState.strikes) ? '❤️' : '💔';
+            });
+        }
+
+        function gameOver(reason) {
+            gameState.isPlaying = false;
+            clearInterval(gameState.timerInterval);
+            
+            if (reason === 'time') {
+                document.getElementById('gameOverReason').textContent = '⏰ Time ran out!';
+            } else {
+                document.getElementById('gameOverReason').textContent = '💔 Too many wrong sorts!';
+            }
+            
+            document.getElementById('gameOverScore').textContent = `Score: ${gameState.score}`;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+
+        function playSound(type) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                if (type === 'success') {
+                    oscillator.frequency.value = 523.25;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    oscillator.frequency.value = 150;
+                    oscillator.type = 'sawtooth';
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                } else if (type === 'pickup') {
+                    oscillator.frequency.value = 400;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                } else if (type === 'powerup') {
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                }
+            } catch (e) {
+                // Audio might be blocked
+            }
+        }
+
+        function update() {
+            if (!gameState.isPlaying) return;
+            
+            updateSpeedBoost();
+            
+            const currentSpeed = speedBoostActive ? player.speed * 2 : player.speed;
+            
+            if (keys['w'] && player.y > 10) {
+                player.y -= currentSpeed;
+            }
+            if (keys['s'] && player.y < canvas.height - player.height - 10) {
+                player.y += currentSpeed;
+            }
+            if (keys['a'] && player.x > 10) {
+                player.x -= currentSpeed;
+            }
+            if (keys['d'] && player.x < canvas.width - player.width - 10) {
+                player.x += currentSpeed;
+            }
+        }
+
+        function draw() {
+            const level = levels[gameState.currentLevel];
+            
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, gameState.cleanliness > 50 ? '#87CEEB' : '#B0BEC5');
+            skyGradient.addColorStop(0.6, gameState.cleanliness > 30 ? '#98D8C8' : '#CFD8DC');
+            skyGradient.addColorStop(1, level.background.ground);
+            
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = level.background.ground;
+            ctx.fillRect(0, canvas.height - 160, canvas.width, 160);
+            
+            if (gameState.currentLevel === 0) {
+                ctx.fillStyle = '#7CB342';
+                for (let i = 0; i < canvas.width; i += 20) {
+                    ctx.fillRect(i, canvas.height - 160, 2, 10);
+                }
+            } else if (gameState.currentLevel === 1) {
+                ctx.fillStyle = '#4FC3F7';
+                ctx.beginPath();
+                for (let i = 0; i < canvas.width; i += 30) {
+                    ctx.arc(i, canvas.height - 160, 15, 0, Math.PI, true);
+                }
+                ctx.fill();
+            } else {
+                ctx.fillStyle = '#1B5E20';
+                for (let i = 0; i < canvas.width; i += 15) {
+                    ctx.fillRect(i, canvas.height - 160, 3, 15);
+                }
+            }
+            
+            const numTrees = Math.floor(gameState.cleanliness / 15);
+            for (let i = 0; i < numTrees; i++) {
+                const treeX = (i * 180) + 80;
+                const treeY = canvas.height - 240;
+                
+                ctx.fillStyle = '#6D4C41';
+                ctx.fillRect(treeX - 10, treeY + 20, 20, 50);
+                
+                ctx.fillStyle = '#4CAF50';
+                ctx.beginPath();
+                ctx.arc(treeX, treeY, 30, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(treeX - 20, treeY + 10, 25, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(treeX + 20, treeY + 10, 25, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            bins.forEach(bin => {
+                ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                ctx.fillRect(bin.x + 5, bin.y + 5, binWidth, binHeight);
+                
+                ctx.fillStyle = bin.color;
+                ctx.fillRect(bin.x, bin.y, binWidth, binHeight);
+                
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.fillRect(bin.x + 10, bin.y + 10, binWidth - 20, 30);
+                
+                ctx.fillStyle = 'black';
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(bin.label, bin.x + binWidth/2, bin.y + binHeight + 20);
+            });
+            
+            trashItems.forEach(item => {
+                ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                ctx.beginPath();
+                ctx.ellipse(item.x + item.width/2, item.y + item.height + 5, item.width/2, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = item.color;
+                ctx.fillRect(item.x, item.y, item.width, item.height);
+                
+                ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(item.x, item.y, item.width, item.height);
+                
+                // Add glow effect for power ups
+                if (item.isPowerUp) {
+                    ctx.shadowColor = item.color;
+                    ctx.shadowBlur = 15;
+                }
+                
+                ctx.font = '24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.emoji, item.x + item.width/2, item.y + item.height/2 + 8);
+                
+                ctx.shadowBlur = 0;
+            });
+            
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.beginPath();
+            ctx.ellipse(player.x + player.width/2, player.y + player.height + 5, player.width/2, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#2196F3';
+            ctx.fillRect(player.x, player.y + 20, player.width, player.height - 20);
+            
+            ctx.fillStyle = '#FFE0BD';
+            ctx.beginPath();
+            ctx.arc(player.x + player.width/2, player.y + 15, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(player.x + player.width/2 - 5, player.y + 13, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(player.x + player.width/2 + 5, player.y + 13, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(player.x + player.width/2, player.y + 16, 5, 0, Math.PI);
+            ctx.stroke();
+            
+            if (gameState.heldItem) {
+                const item = gameState.heldItem;
+                const itemX = player.x + player.width/2 - 20;
+                const itemY = player.y - 30;
+                
+                ctx.fillStyle = item.color;
+                ctx.fillRect(itemX, itemY, 40, 40);
+                
+                ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(itemX, itemY, 40, 40);
+                
+                ctx.font = '28px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.emoji, itemX + 20, itemY + 28);
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            
+            if (gameState.isPlaying) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+    </script>
+</body>
+</html>
