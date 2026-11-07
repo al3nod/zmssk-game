@@ -49,6 +49,7 @@ li.done{text-decoration:line-through;opacity:.5}
 #inv .btn{font-size:15px;padding:9px 12px;text-align:start}
 #certImg{max-width:min(760px,92vw);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.5)}
 @media (max-width:760px){.main{flex-direction:column}.side{width:auto;max-height:30vh}}
+@media print{html,body{height:auto;overflow:visible;background:#fff}body>*{display:none!important}#printArea{display:block!important;position:static;padding:0}#printArea img{width:100%;height:auto;box-shadow:none;border-radius:0}@page{size:A4 landscape;margin:0}}
 </style>
 </head>
 <body>
@@ -89,12 +90,14 @@ li.done{text-decoration:line-through;opacity:.5}
  <h1 id="endTitle"></h1>
  <p class="sub" id="endMsg"></p>
  <img id="certImg" alt="">
+ <p class="sub" id="dlMsg"></p>
  <div class="row">
-  <button class="btn hidden" id="dl" data-k="dl" onclick="download()"></button>
+  <button class="btn" id="dl" data-k="dl" onclick="download()"></button>
   <button class="btn ghost" data-k="again" onclick="backToStart()"></button>
  </div>
 </section>
 
+<div id="printArea" class="hidden"><img id="printImg" alt=""></div>
 <script>
 const L={
 ar:{title:'ازرع أثراً جميلاً',sub:'نظّف الحديقة، ازرع الشتلات، اسقِها، وابنِ بيتاً أخضر بين الأشجار',start:'🚀 ابدأ اللعبة',howto:'⌨️ الحركة: WASD أو الأسهم • التفاعل: Space • البناء: اضغط Space مطولاً • المتجر: 1 / 2 • 3 محاولات فقط',lang:'English',name:'اكتب اسمك هنا',lvl:'المرحلة',pts:'النقاط',time:'وقت اللعب',lives:'المحاولات',hold:'يحمل',none:'لا شيء',remain:'المهام المتبقية',
@@ -134,7 +137,7 @@ const T=k=>L[lang][k];
 const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
 
 if(window.claude&&window.claude.use){
- window.claude.use('downloads').then(d=>{DL=d;$('dl').classList.toggle('hidden',!d)}).catch(()=>{});
+ window.claude.use('downloads').then(d=>{DL=d}).catch(()=>{});
 }
 
 function newGame(){
@@ -295,7 +298,7 @@ function finish(r){
 function showEnd(){
  $('endTitle').textContent=T(G.over==='win'?'win':G.over==='time'?'over_time':'over_lives');
  $('endMsg').textContent=`${name} • ${T('pts')}: ${G.pts} • ${T('endT').replace('{t}',fmt(G.total)).replace('{T}',fmt(TOTAL))}`;
- $('certImg').src=makeCert().toDataURL('image/png');
+ $('certImg').src=$('printImg').src=makeCert().toDataURL('image/png');
 }
 
 function makeCert(){
@@ -319,9 +322,13 @@ function makeCert(){
  return c;
 }
 
-function download(){
- if(!DL)return;
- makeCert().toBlob(b=>{DL.save({filename:'eco-hero-certificate.png',data:b}).catch(()=>{})},'image/png');
+async function download(){
+ const ar=lang==='ar',m=$('dlMsg');
+ if(!DL&&window.claude&&window.claude.use){try{DL=await window.claude.use('downloads')}catch(e){}}
+ if(!DL){m.textContent=ar?'التحميل مو متاح هنا. اضغط مطولاً على صورة الشهادة واختر حفظ الصورة':'Download is not available here. Long-press the certificate image and save it';return}
+ const b=await new Promise(r=>makeCert().toBlob(r,'image/png'));
+ try{await DL.save({filename:'eco-hero-certificate.png',data:b});m.textContent=ar?'تم الحفظ ✅':'Saved ✅'}
+ catch(e){m.textContent=ar?'ما تم الحفظ':'Not saved'}
 }
 
 function backToStart(){show('start');$('name').value=name}
