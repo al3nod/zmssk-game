@@ -31,16 +31,16 @@ h1{font-size:clamp(34px,6vw,62px);font-weight:900;background:linear-gradient(90d
 .chip.warn{color:var(--warn);border-color:var(--warn);animation:pulse .6s infinite}
 #fsBtn,#modeBtn{font-size:15px;padding:6px 12px}
 @keyframes pulse{50%{transform:scale(1.06)}}
-.main{flex:1;display:flex;gap:12px;padding:12px;min-height:0}
+.main{flex:1;display:flex;position:relative;min-height:0}
 .stage{flex:1;position:relative;min-width:0;min-height:0}
-#cv{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:16px;touch-action:none;cursor:pointer}
+#cv{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:16px;touch-action:none}
 #toast{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);padding:10px 18px;border-radius:12px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 #toast.on{opacity:1}
 #shop{position:absolute;top:38%;right:10px;width:170px;background:rgba(10,22,32,.94);border:2px solid var(--gold);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px}
 #shop h3{color:var(--gold);font-size:14px}
 .item{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:12px}
 .item .btn{font-size:12px;padding:4px 8px;white-space:nowrap}
-.side{width:270px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;overflow:auto}
+.side{position:absolute;top:10px;left:10px;z-index:4;width:190px;max-height:60%;display:flex;flex-direction:column;gap:8px;overflow:auto;padding:8px;background:rgba(10,22,32,.85);border:1px solid var(--line);border-radius:12px}
 .side h2{font-size:22px;color:var(--gold)}
 .side p{font-size:15px;line-height:1.6;opacity:.92}
 ul{list-style:none;display:flex;flex-direction:column;gap:8px}
@@ -49,14 +49,21 @@ li.done{text-decoration:line-through;opacity:.5}
 #inv{display:flex;flex-direction:column;gap:8px}
 #inv .btn{font-size:15px;padding:9px 12px;text-align:start}
 .hint{font-size:14px;color:var(--acc2);line-height:1.6}
+#joy,#act{display:none}
+#game.joy #joy,#game.joy #act{display:flex}
+#joy{position:absolute;left:16px;bottom:16px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid var(--line);align-items:center;justify-content:center;touch-action:none;z-index:5}
+#knob{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 6px 16px rgba(0,0,0,.4);pointer-events:none}
+#act{position:absolute;right:18px;bottom:18px;width:96px;height:96px;border-radius:50%;border:0;font-size:38px;background:linear-gradient(135deg,var(--gold),#ffb347);box-shadow:0 8px 20px rgba(0,0,0,.4);touch-action:none;z-index:5;align-items:center;justify-content:center}
 #certImg{max-width:min(760px,92vw);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.5)}
-@media (max-width:760px){.main{flex-direction:column}.side{width:auto;max-height:22vh}}
+@media (max-width:760px){.side{width:170px;max-height:45%}}
 @media (pointer:coarse){
  .main{padding:6px;gap:6px}
  .hud{padding:5px 6px;gap:6px}
  .chip{font-size:12px;padding:3px 8px}
  .chip b{font-size:15px}
  #fsBtn,#modeBtn{font-size:12px;padding:4px 8px}
+ 
+ 
  .card{font-size:12px;line-height:1.5;padding:8px 12px}
  .side{width:200px}
  .side h2{font-size:15px}
@@ -93,11 +100,13 @@ li.done{text-decoration:line-through;opacity:.5}
    <canvas id="cv" width="960" height="600"></canvas>
    <div id="toast"></div>
    <div id="shop" class="hidden"></div>
+   <div id="joy"><div id="knob"></div></div>
+   <button id="act"></button>
   </div>
   <aside class="side">
-   <h2 id="rt"></h2>
-   <p id="rd"></p>
-   <p id="hint" class="hint"></p>
+   
+   
+   
    <ul id="tasks"></ul>
    <div id="inv"></div>
   </aside>
@@ -118,7 +127,7 @@ li.done{text-decoration:line-through;opacity:.5}
 <div id="printArea" class="hidden"><img id="printImg" alt=""></div>
 <script>
 const L={
-ar:{title:'ازرع أثراً جميلاً',sub:'نظّف الحديقة، ازرع الشتلات، اسقِها، وابنِ بيتاً أخضر بين الأشجار',start:'🚀 ابدأ اللعبة',howto:'🖱️ الماوس: اضغط على المكان لتمشي له، والزبالة ثم الحاوية، والشتلة للزراعة ثم للسقي، ومربع البناء مطولاً • ⌨️ الكيبورد: WASD أو الأسهم للحركة، Space للتفاعل والبناء مطولاً • زر التبديل فوق • 3 محاولات فقط',lang:'English',mouse:'🖱️ الماوس',keys:'⌨️ الكيبورد',hold_first:'ضعه أولاً في الحاوية أو على الأرض',hint_mouse:'اضغط على المكان لتتحرك له.',hint_keys:'WASD أو الأسهم للحركة • Space للتفاعل • Space مطولاً للبناء',name:'اكتب اسمك هنا',lvl:'المرحلة',pts:'النقاط',time:'وقت اللعب',lives:'المحاولات',hold:'يحمل',none:'لا شيء',remain:'المهام المتبقية',
+ar:{title:'ازرع أثراً جميلاً',sub:'نظّف الحديقة، ازرع الشتلات، اسقِها، وابنِ بيتاً أخضر بين الأشجار',start:'🚀 ابدأ اللعبة',howto:'🕹️ العصا: حرّكها لأي اتجاه، والزر الذهبي ياخذ وينزّل الأشياء ويزرع ويسقي، واضغطه مطولاً عند مربع البناء • ⌨️ الكيبورد: WASD أو الأسهم، Space للتفاعل والبناء مطولاً، و 1 و 2 للمتجر • زر التبديل فوق • 3 محاولات فقط',lang:'English',joy:'🕹️ العصا',keys:'⌨️ الكيبورد',hold_first:'ضعه أولاً في الحاوية أو على الأرض',hint_mouse:'اضغط على المكان لتتحرك له.',hint_keys:'WASD أو الأسهم للحركة • Space للتفاعل • Space مطولاً للبناء',name:'اكتب اسمك هنا',lvl:'المرحلة',pts:'النقاط',time:'وقت اللعب',lives:'المحاولات',hold:'يحمل',none:'لا شيء',remain:'المهام المتبقية',
 r1t:'🗑️ تنظيف الحديقة',r1d:'اضغط على المخلفات ثم على الحاوية الصحيحة. كل قطعة صحيحة = 10 نقاط، والخطأ يكلّفك محاولة.',
 r2t:'🌱 الزراعة والمتجر',r2d:'اضغط على الأماكن المحددة لزراعة 6 شتلات. المتجر اختياري ويفتح من هذه المرحلة.',
 r3t:'💧 السقاية',r3d:'اضغط على كل شتلة لتسقيها. تكبر خلال 3 ثوانٍ.',
@@ -127,7 +136,7 @@ t_sort:'افرز المخلفات في حاوياتها',t_plant:'ازرع ال�
 b_plastic:'بلاستيك',b_paper:'ورق',b_glass:'زجاج',b_organic:'عضوي',
 shopT:'🛒 المتجر البيئي',shopLbl:'المتجر',locked:'يفتح في المرحلة 2',it_speed:'⚡ بوست السرعة (15 ث)',it_time:'⏱ إرجاع 5 ثوانٍ',it_skip:'⏭ تخطي مرحلة كاملة',bz:'مربع البناء',buy:'شراء',
 nope:'نقاطك لا تكفي',bought:'تم الشراء ✅',good:'✅ +10 نقاط',bad:'❌ حاوية خاطئة! خسرت محاولة',planted:'🌱 تمت الزراعة +10',watered:'💧 تم السقي! ينمو خلال 3 ثوانٍ',grown:'🌳 شتلة كبرت +10',done:'🎉 انتهت المرحلة',shopOpen:'🛒 المتجر مفتوح!',built:'🏡 اكتمل البيت! +50',over_time:'⏰ انتهى الوقت! خسرت كل النقاط',over_lives:'💔 انتهت المحاولات!',win:'🏆 أكملت الرحلة وبنيت البيت!',endT:'وقت اللعب: {t}',dl:'⬇️ تحميل الشهادة',again:'🔄 العب مرة ثانية',cert_title:'شهادة تقدير',cert_thanks:'نشكرك على جهدك في حماية كوكبنا',cert_name:'مُنحت إلى',cert_game:'ازرع أثراً جميلاً',cert_time:'أنهيت اللعبة في {t}'},
-en:{title:'Leave a Beautiful Footprint',sub:'Clean the park, plant saplings, water them, and build a green home among the trees',start:'🚀 Start game',howto:'🖱️ Mouse: tap a spot to walk there, tap litter then its bin, tap saplings to plant and water, hold on the build square • ⌨️ Keyboard: WASD or arrows to move, Space to act and hold to build • Switch button at top • 3 lives only',lang:'العربية',mouse:'🖱️ Mouse',keys:'⌨️ Keyboard',hold_first:'Drop it first: in a bin or on the ground',hint_mouse:'Tap a spot to walk there.',hint_keys:'WASD or arrows to move • Space to act • hold Space to build',name:'Enter your name',lvl:'Round',pts:'Points',time:'Play time',lives:'Lives',hold:'Holding',none:'Nothing',remain:'Tasks left',
+en:{title:'Leave a Beautiful Footprint',sub:'Clean the park, plant saplings, water them, and build a green home among the trees',start:'🚀 Start game',howto:'🕹️ Joystick: drag to move in any direction, the gold button takes and drops items, plants and waters, hold it on the build square • ⌨️ Keyboard: WASD or arrows, Space to act, 1 and 2 for the shop • Switch button at top • 3 lives only',lang:'العربية',joy:'🕹️ Joystick',keys:'⌨️ Keyboard',hold_first:'Drop it first: in a bin or on the ground',hint_mouse:'Tap a spot to walk there.',hint_keys:'WASD or arrows to move • Space to act • hold Space to build',name:'Enter your name',lvl:'Round',pts:'Points',time:'Play time',lives:'Lives',hold:'Holding',none:'Nothing',remain:'Tasks left',
 r1t:'🗑️ Clean the park',r1d:'Tap litter, then tap the correct bin. Each correct item = 10 points. A wrong bin costs a life.',
 r2t:'🌱 Planting & shop',r2d:'Tap the marked spots to plant 6 saplings. The shop is optional and opens this round.',
 r3t:'💧 Watering',r3d:'Tap each sapling to water it. It grows in 3 seconds.',
@@ -147,7 +156,7 @@ const SPOTS=[{x:160,y:200},{x:300,y:310},{x:190,y:380},{x:640,y:200},{x:790,y:30
 const BUILD={x:410,y:215,w:140,h:110},DOOR={x:480,y:322},SHOP={x:820,y:40,w:120,h:130};
 const ITEMS=['speed','skip'],COST={speed:20,skip:100};
 let lang='ar',name='',running=false,G=null,DL=null,tt=0,last=0;
-let mode='mouse';const K={};
+let mode=matchMedia('(pointer:coarse)').matches?'joy':'keys';const K={};
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const dist=(a,b,c,d)=>Math.hypot(a-c,b-d);
 const inBox=(p,b)=>p.x>b.x&&p.x<b.x+b.w&&p.y>b.y&&p.y<b.y+b.h;
@@ -165,7 +174,7 @@ function newGame(){
  return g;
 }
 
-function show(id){['start','game','end'].forEach(s=>$(s).classList.toggle('hidden',s!==id))}
+function show(id){['start','game','end'].forEach(s=>$(s).classList.toggle('hidden',s!==id));$('langBtn').classList.toggle('hidden',id==='game')}
 
 function enterFS(){
  const e=document.documentElement,f=e.requestFullscreen||e.webkitRequestFullscreen;
@@ -235,7 +244,7 @@ addEventListener('keyup',e=>{
  const k=e.key.toLowerCase(),d=dirOf(e);
  if(k===' ')G.space=false;else if(d)K[d]=false;
 });
-function toggleMode(){setMode(mode==='mouse'?'keys':'mouse')}
+function toggleMode(){setMode(mode==='joy'?'keys':'joy')}
 function setMode(m){
  mode=m;K.up=K.down=K.left=K.right=false;
  if(G){G.goal=null;G.ptr=false;G.space=false}
@@ -246,17 +255,29 @@ function toWorld(e){
  const r=cv.getBoundingClientRect(),s=Math.min(r.width/W,r.height/H);
  return{x:(e.clientX-r.left-(r.width-W*s)/2)/s,y:(e.clientY-r.top-(r.height-H*s)/2)/s};
 }
-cv.addEventListener('pointerdown',e=>{
- if(mode!=='mouse')return;
- if(!running||!G||G.cine!=null||G.walk)return;
- e.preventDefault();
- G.ptr=true;
- const w=toWorld(e);
- tap(w.x,w.y);
-});
+
 addEventListener('pointerup',()=>{if(G)G.ptr=false});
 addEventListener('pointercancel',()=>{if(G)G.ptr=false});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
+const JV={x:0,y:0},joy=$('joy'),knob=$('knob'),act=$('act');
+function joyMove(e){
+ const r=joy.getBoundingClientRect(),R=r.width/2-30;
+ const dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),d=Math.hypot(dx,dy);
+ const m=Math.min(d,R),ux=d?dx/d:0,uy=d?dy/d:0,k=d<8?0:m/R;
+ JV.x=ux*k;JV.y=uy*k;
+ knob.style.transform=`translate(${ux*m}px,${uy*m}px)`;
+}
+function joyEnd(){JV.x=0;JV.y=0;knob.style.transform=''}
+joy.addEventListener('pointerdown',e=>{e.preventDefault();joy.setPointerCapture(e.pointerId);joyMove(e)});
+joy.addEventListener('pointermove',e=>{if(joy.hasPointerCapture(e.pointerId))joyMove(e)});
+['pointerup','pointercancel','lostpointercapture'].forEach(t=>joy.addEventListener(t,joyEnd));
+act.addEventListener('pointerdown',e=>{
+ e.preventDefault();
+ if(!running||!G||G.cine!=null||G.walk)return;
+ act.setPointerCapture(e.pointerId);
+ G.space=true;keyAct();
+});
+['pointerup','pointercancel','lostpointercapture'].forEach(t=>act.addEventListener(t,()=>{if(G)G.space=false}));
 
 function tap(x,y){
  const g=G,p=g.p,R=g.round,go=(o,r,fn)=>{g.goal={o:{x:Math.min(940,Math.max(20,o.x)),y:Math.min(580,Math.max(40,o.y))},r,fn}};
@@ -299,7 +320,7 @@ function binAct(bi){
 function useItem(k){
  if(!running||G.inv[k]<=0)return;
  if(k==='skip'){
-  if(G.round<1||G.round>2)return;
+  if(G.round>2)return;
   G.inv.skip--;G.round++;G.tl=60;toast(T('done'),1);return;
  }
  G.inv[k]--;
@@ -345,7 +366,10 @@ function update(dt){
   return;
  }
  g.boost=Math.max(0,g.boost-dt);
- if(mode==='keys'){
+ if(mode==='joy'){
+  const sp=(g.boost>0?340:180)*dt;
+  p.x+=JV.x*sp;p.y+=JV.y*sp;
+ }else if(mode==='keys'){
   const dx=(K.right?1:0)-(K.left?1:0),dy=(K.down?1:0)-(K.up?1:0);
   const m=dx&&dy?.707:1,sp=(g.boost>0?340:180)*dt*m;
   p.x+=dx*sp;p.y+=dy*sp;
@@ -356,7 +380,7 @@ function update(dt){
  }
  p.x=Math.min(940,Math.max(20,p.x));
  p.y=Math.min(580,Math.max(40,p.y));
- const inS=g.round>=1&&inBox(p,SHOP);
+ const inS=inBox(p,SHOP);
  $('shop').classList.toggle('hidden',!inS);
  if(inS&&!g.visited){g.visited=true;toast(T('shopOpen'),1)}
  g.saplings.forEach(s=>{if(s.w&&!s.gr){s.g+=dt;if(s.g>=3){s.gr=true;g.pts+=10;toast(T('grown'),1)}}});
@@ -468,7 +492,7 @@ function draw(){
 }
 
 function drawShop(){
- const s=SHOP,on=G.round>=1,x=s.x,y=s.y;
+ const s=SHOP,on=true,x=s.x,y=s.y;
  const c1=on?'#c0392b':'#7f8c8d',c2=on?'#ffffff':'#bdc3c7';
  cx.fillStyle=on?'#f3e3c3':'#aab4b7';cx.fillRect(x+10,y+54,100,76);
  for(let i=0;i<8;i++){cx.fillStyle=i%2?c2:c1;cx.fillRect(x+4+i*14,y+30,14,24)}
@@ -538,16 +562,17 @@ function updateUI(){
  $('timer').classList.toggle('warn',g.tl<=10);
  $('lives').textContent='❤️'.repeat(3-g.strikes)+'🤍'.repeat(g.strikes);
  $('hold').textContent=g.p.hold?g.p.hold.e+' '+T('b_'+g.p.hold.t):T('none');
- $('modeBtn').textContent=T(mode==='mouse'?'mouse':'keys');
- $('hint').textContent=T(mode==='mouse'?'hint_mouse':'hint_keys');
+ $('modeBtn').textContent=T(mode==='joy'?'joy':'keys');
+ $('game').classList.toggle('joy',mode==='joy');
+ $('act').textContent=g.round===0?(g.p.hold?'📥':'✋'):g.round===1?'🌱':g.round===2?'💧':'🔨';
  ITEMS.forEach(k=>{
   const b=$('i_'+k);
   b.textContent=`${T('it_'+k)} ×${g.inv[k]}`;
-  b.disabled=g.inv[k]<=0||(k==='skip'&&(g.round<1||g.round>2));
+  b.disabled=g.inv[k]<=0||(k==='skip'&&g.round>2);
   $('b_'+k).disabled=g.pts<COST[k];
  });
- $('rt').textContent=T('r'+(g.round+1)+'t');
- $('rd').textContent=T('r'+(g.round+1)+'d');
+ 
+ 
  const ts=tasks();
  $('tasks').innerHTML=ts.map(t=>{const ok=t.cur>=t.need;return `<li class="${ok?'done':''}">${ok?'✅':'⬜'} ${T(t.k)} ${t.pct?Math.floor(t.cur)+'%':'('+t.cur+'/'+t.need+')'}</li>`}).join('')+`<li>${T('remain')}: ${ts.filter(t=>t.cur<t.need).length}</li>`;
 }
