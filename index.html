@@ -7,16 +7,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg1:#0b1d2a;--bg2:#143a4a;--card:rgba(255,255,255,.08);--line:rgba(255,255,255,.16);--acc:#3ddc97;--acc2:#7cf5c4;--gold:#ffd166;--warn:#ff6b6b;--tx:#eef6f2}
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{font-family:Tajawal,"Segoe UI",Tahoma,Arial,sans-serif;color:var(--tx);background:radial-gradient(circle at 15% 0%,#1f5a55,transparent 50%),linear-gradient(160deg,var(--bg1),var(--bg2));overflow:hidden}
+body{font-family:Tajawal,"Segoe UI",Tahoma,Arial,sans-serif;color:var(--tx);background:radial-gradient(circle at 15% 0%,#1f5a55,transparent 50%),linear-gradient(160deg,var(--bg1),var(--bg2));overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+input{font:inherit;font-size:20px;padding:12px 18px;border-radius:14px;border:2px solid var(--line);background:rgba(0,0,0,.3);color:#fff;width:min(340px,88vw);text-align:center;outline:none;user-select:text;-webkit-user-select:text}
+input:focus{border-color:var(--acc)}
 .hidden{display:none!important}
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;overflow:auto}
 h1{font-size:clamp(34px,6vw,62px);font-weight:900;background:linear-gradient(90deg,var(--acc2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.3}
 .sub{font-size:20px;opacity:.9;max-width:640px;line-height:1.6}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 22px;max-width:680px;line-height:1.8;font-size:17px;backdrop-filter:blur(8px)}
-input{font:inherit;font-size:20px;padding:12px 18px;border-radius:14px;border:2px solid var(--line);background:rgba(0,0,0,.3);color:#fff;width:min(340px,88vw);text-align:center;outline:none}
-input:focus{border-color:var(--acc)}
 .btn{font:inherit;font-weight:900;font-size:19px;padding:11px 22px;border-radius:14px;border:0;cursor:pointer;color:#06231a;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 8px 20px rgba(0,0,0,.35);transition:transform .15s}
 .btn:hover{transform:translateY(-2px)}
 .btn:active{transform:scale(.97)}
@@ -29,10 +29,11 @@ input:focus{border-color:var(--acc)}
 .chip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 14px;font-weight:700;font-size:16px}
 .chip b{color:var(--acc2);font-size:20px;margin-inline-start:4px}
 .chip.warn{color:var(--warn);border-color:var(--warn);animation:pulse .6s infinite}
+#fsBtn,#modeBtn{font-size:15px;padding:6px 12px}
 @keyframes pulse{50%{transform:scale(1.06)}}
 .main{flex:1;display:flex;gap:12px;padding:12px;min-height:0}
-.stage{flex:1;position:relative;min-width:0;display:flex;align-items:center;justify-content:center}
-#cv{display:block;width:100%;max-height:100%;aspect-ratio:960/600;object-fit:contain;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.stage{flex:1;position:relative;min-width:0;min-height:0}
+#cv{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:16px;touch-action:none;cursor:pointer}
 #toast{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);padding:10px 18px;border-radius:12px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 #toast.on{opacity:1}
 #shop{position:absolute;top:38%;right:10px;width:170px;background:rgba(10,22,32,.94);border:2px solid var(--gold);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px}
@@ -47,8 +48,22 @@ li{background:var(--card);border:1px solid var(--line);border-radius:12px;paddin
 li.done{text-decoration:line-through;opacity:.5}
 #inv{display:flex;flex-direction:column;gap:8px}
 #inv .btn{font-size:15px;padding:9px 12px;text-align:start}
+.hint{font-size:14px;color:var(--acc2);line-height:1.6}
 #certImg{max-width:min(760px,92vw);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.5)}
-@media (max-width:760px){.main{flex-direction:column}.side{width:auto;max-height:30vh}}
+@media (max-width:760px){.main{flex-direction:column}.side{width:auto;max-height:22vh}}
+@media (pointer:coarse){
+ .main{padding:6px;gap:6px}
+ .hud{padding:5px 6px;gap:6px}
+ .chip{font-size:12px;padding:3px 8px}
+ .chip b{font-size:15px}
+ #fsBtn,#modeBtn{font-size:12px;padding:4px 8px}
+ .card{font-size:12px;line-height:1.5;padding:8px 12px}
+ .side{width:200px}
+ .side h2{font-size:15px}
+ .side p,li{font-size:12px}
+ li{padding:5px 8px}
+ #inv .btn{font-size:12px;padding:6px 8px}
+}
 @media print{html,body{height:auto;overflow:visible;background:#fff}body>*{display:none!important}#printArea{display:block!important;position:static;padding:0}#printArea img{width:100%;height:auto;box-shadow:none;border-radius:0}@page{size:A4 landscape;margin:0}}
 </style>
 </head>
@@ -70,6 +85,8 @@ li.done{text-decoration:line-through;opacity:.5}
   <div class="chip" id="timer"><span data-k="time"></span><b id="tl"></b></div>
   <div class="chip"><span data-k="lives"></span><b id="lives"></b></div>
   <div class="chip"><span data-k="hold"></span><b id="hold"></b></div>
+  <button class="btn ghost" id="modeBtn" onclick="toggleMode()"></button>
+  <button class="btn ghost" id="fsBtn" onclick="toggleFS()">⛶</button>
  </div>
  <div class="main">
   <div class="stage">
@@ -80,6 +97,7 @@ li.done{text-decoration:line-through;opacity:.5}
   <aside class="side">
    <h2 id="rt"></h2>
    <p id="rd"></p>
+   <p id="hint" class="hint"></p>
    <ul id="tasks"></ul>
    <div id="inv"></div>
   </aside>
@@ -100,20 +118,20 @@ li.done{text-decoration:line-through;opacity:.5}
 <div id="printArea" class="hidden"><img id="printImg" alt=""></div>
 <script>
 const L={
-ar:{title:'ازرع أثراً جميلاً',sub:'نظّف الحديقة، ازرع الشتلات، اسقِها، وابنِ بيتاً أخضر بين الأشجار',start:'🚀 ابدأ اللعبة',howto:'⌨️ الحركة: WASD أو الأسهم • التفاعل: Space • البناء: اضغط Space مطولاً • المتجر: 1 / 2 • 3 محاولات فقط',lang:'English',name:'اكتب اسمك هنا',lvl:'المرحلة',pts:'النقاط',time:'وقت اللعب',lives:'المحاولات',hold:'يحمل',none:'لا شيء',remain:'المهام المتبقية',
-r1t:'🗑️ تنظيف الحديقة',r1d:'امسك المخلفات وضعها في الحاوية الصحيحة. كل قطعة صحيحة = 10 نقاط، والخطأ يكلّفك محاولة.',
-r2t:'🌱 الزراعة والمتجر',r2d:'ازرع 6 شتلات في الأماكن المحددة. المتجر اختياري ويفتح من هذه المرحلة.',
-r3t:'💧 السقاية',r3d:'اقترب من كل شتلة واضغط Space لتسقيها. تكبر خلال 3 ثوانٍ.',
-r4t:'🏠 بناء البيت',r4d:'ادخل مربع البناء واضغط Space مطولاً. إذا تركته يتوقف، وإذا رجعت يكمل من آخر نقطة.',
+ar:{title:'ازرع أثراً جميلاً',sub:'نظّف الحديقة، ازرع الشتلات، اسقِها، وابنِ بيتاً أخضر بين الأشجار',start:'🚀 ابدأ اللعبة',howto:'🖱️ الماوس: اضغط على المكان لتمشي له، والزبالة ثم الحاوية، والشتلة للزراعة ثم للسقي، ومربع البناء مطولاً • ⌨️ الكيبورد: WASD أو الأسهم للحركة، Space للتفاعل والبناء مطولاً • زر التبديل فوق • 3 محاولات فقط',lang:'English',mouse:'🖱️ الماوس',keys:'⌨️ الكيبورد',hold_first:'ضعه أولاً في الحاوية أو على الأرض',hint_mouse:'اضغط على المكان لتتحرك له.',hint_keys:'WASD أو الأسهم للحركة • Space للتفاعل • Space مطولاً للبناء',name:'اكتب اسمك هنا',lvl:'المرحلة',pts:'النقاط',time:'وقت اللعب',lives:'المحاولات',hold:'يحمل',none:'لا شيء',remain:'المهام المتبقية',
+r1t:'🗑️ تنظيف الحديقة',r1d:'اضغط على المخلفات ثم على الحاوية الصحيحة. كل قطعة صحيحة = 10 نقاط، والخطأ يكلّفك محاولة.',
+r2t:'🌱 الزراعة والمتجر',r2d:'اضغط على الأماكن المحددة لزراعة 6 شتلات. المتجر اختياري ويفتح من هذه المرحلة.',
+r3t:'💧 السقاية',r3d:'اضغط على كل شتلة لتسقيها. تكبر خلال 3 ثوانٍ.',
+r4t:'🏠 بناء البيت',r4d:'اضغط مطولاً على مربع البناء. إذا رفعت إصبعك أو الماوس يتوقف، وإذا رجعت يكمل من آخر نقطة.',
 t_sort:'افرز المخلفات في حاوياتها',t_plant:'ازرع الشتلات',t_shop:'زُر المتجر',t_water:'اسقِ الشتلات حتى تكبر',t_build:'ابنِ البيت',
 b_plastic:'بلاستيك',b_paper:'ورق',b_glass:'زجاج',b_organic:'عضوي',
 shopT:'🛒 المتجر البيئي',shopLbl:'المتجر',locked:'يفتح في المرحلة 2',it_speed:'⚡ بوست السرعة (15 ث)',it_time:'⏱ إرجاع 5 ثوانٍ',it_skip:'⏭ تخطي مرحلة كاملة',bz:'مربع البناء',buy:'شراء',
 nope:'نقاطك لا تكفي',bought:'تم الشراء ✅',good:'✅ +10 نقاط',bad:'❌ حاوية خاطئة! خسرت محاولة',planted:'🌱 تمت الزراعة +10',watered:'💧 تم السقي! ينمو خلال 3 ثوانٍ',grown:'🌳 شتلة كبرت +10',done:'🎉 انتهت المرحلة',shopOpen:'🛒 المتجر مفتوح!',built:'🏡 اكتمل البيت! +50',over_time:'⏰ انتهى الوقت! خسرت كل النقاط',over_lives:'💔 انتهت المحاولات!',win:'🏆 أكملت الرحلة وبنيت البيت!',endT:'وقت اللعب: {t}',dl:'⬇️ تحميل الشهادة',again:'🔄 العب مرة ثانية',cert_title:'شهادة تقدير',cert_thanks:'نشكرك على جهدك في حماية كوكبنا',cert_name:'مُنحت إلى',cert_game:'ازرع أثراً جميلاً',cert_time:'أنهيت اللعبة في {t}'},
-en:{title:'Leave a Beautiful Footprint',sub:'Clean the park, plant saplings, water them, and build a green home among the trees',start:'🚀 Start game',howto:'⌨️ Move: WASD or arrows • Interact: Space • Build: hold Space • Shop: 1 / 2 • 3 lives only',lang:'العربية',name:'Enter your name',lvl:'Round',pts:'Points',time:'Play time',lives:'Lives',hold:'Holding',none:'Nothing',remain:'Tasks left',
-r1t:'🗑️ Clean the park',r1d:'Pick up litter and drop it in the correct bin. Each correct item = 10 points. A wrong bin costs a life.',
-r2t:'🌱 Planting & shop',r2d:'Plant 6 saplings at the marked spots. The shop is optional and opens this round.',
-r3t:'💧 Watering',r3d:'Go to each sapling and press Space to water it. It grows in 3 seconds.',
-r4t:'🏠 Build the house',r4d:'Stand in the build square and hold Space. Release to pause; come back to continue from where you stopped.',
+en:{title:'Leave a Beautiful Footprint',sub:'Clean the park, plant saplings, water them, and build a green home among the trees',start:'🚀 Start game',howto:'🖱️ Mouse: tap a spot to walk there, tap litter then its bin, tap saplings to plant and water, hold on the build square • ⌨️ Keyboard: WASD or arrows to move, Space to act and hold to build • Switch button at top • 3 lives only',lang:'العربية',mouse:'🖱️ Mouse',keys:'⌨️ Keyboard',hold_first:'Drop it first: in a bin or on the ground',hint_mouse:'Tap a spot to walk there.',hint_keys:'WASD or arrows to move • Space to act • hold Space to build',name:'Enter your name',lvl:'Round',pts:'Points',time:'Play time',lives:'Lives',hold:'Holding',none:'Nothing',remain:'Tasks left',
+r1t:'🗑️ Clean the park',r1d:'Tap litter, then tap the correct bin. Each correct item = 10 points. A wrong bin costs a life.',
+r2t:'🌱 Planting & shop',r2d:'Tap the marked spots to plant 6 saplings. The shop is optional and opens this round.',
+r3t:'💧 Watering',r3d:'Tap each sapling to water it. It grows in 3 seconds.',
+r4t:'🏠 Build the house',r4d:'Press and hold the build square. Release to pause; hold again to continue from where you stopped.',
 t_sort:'Sort the litter into bins',t_plant:'Plant the saplings',t_shop:'Visit the shop',t_water:'Water until they grow',t_build:'Build the house',
 b_plastic:'Plastic',b_paper:'Paper',b_glass:'Glass',b_organic:'Organic',
 shopT:'🛒 Eco Shop',shopLbl:'Shop',locked:'Opens in round 2',it_speed:'⚡ Speed boost (15s)',it_time:'⏱ +5 seconds',it_skip:'⏭ Skip a full round',bz:'Build square',buy:'Buy',
@@ -128,31 +146,38 @@ const BINS=[120,330,540,750];
 const SPOTS=[{x:160,y:200},{x:300,y:310},{x:190,y:380},{x:640,y:200},{x:790,y:300},{x:700,y:385}];
 const BUILD={x:410,y:215,w:140,h:110},DOOR={x:480,y:322},SHOP={x:820,y:40,w:120,h:130};
 const ITEMS=['speed','skip'],COST={speed:20,skip:100};
-const K={};
 let lang='ar',name='',running=false,G=null,DL=null,tt=0,last=0;
+let mode='mouse';const K={};
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const dist=(a,b,c,d)=>Math.hypot(a-c,b-d);
 const inBox=(p,b)=>p.x>b.x&&p.x<b.x+b.w&&p.y>b.y&&p.y<b.y+b.h;
 const T=k=>L[lang][k];
 const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+const isTouch=matchMedia('(pointer:coarse)').matches;
 
 if(window.claude&&window.claude.use){
  window.claude.use('downloads').then(d=>{DL=d}).catch(()=>{});
 }
 
 function newGame(){
- const g={round:0,pts:0,strikes:0,tl:60,total:0,boost:0,sorted:0,visited:false,built:0,walk:false,over:null,space:false,inv:{speed:0,time:0,skip:0},saplings:[],items:[],p:{x:480,y:420,hold:null}};
+ const g={round:0,pts:0,strikes:0,tl:60,total:0,boost:0,sorted:0,visited:false,built:0,walk:false,over:null,ptr:false,goal:null,inv:{speed:0,time:0,skip:0},saplings:[],items:[],p:{x:480,y:420,hold:null}};
  for(let i=0;i<12;i++)g.items.push({...TYPES[Math.floor(Math.random()*4)],x:rnd(60,780),y:rnd(80,380)});
  return g;
 }
 
 function show(id){['start','game','end'].forEach(s=>$(s).classList.toggle('hidden',s!==id))}
 
+function enterFS(){
+ const e=document.documentElement,f=e.requestFullscreen||e.webkitRequestFullscreen;
+ if(f){try{Promise.resolve(f.call(e)).catch(()=>{})}catch(_){}}
+}
+function toggleFS(){document.fullscreenElement?document.exitFullscreen().catch(()=>{}):enterFS()}
+
 function startGame(){
  const n=$('name').value.trim();
  if(!n){$('name').focus();return}
  name=n;G=newGame();running=true;
- for(const k in K)delete K[k];
+ if(isTouch)enterFS();
  show('game');renderStatic();
 }
 
@@ -173,14 +198,35 @@ function renderStatic(){
  $('inv').innerHTML=ITEMS.map(k=>`<button class="btn ghost" id="i_${k}" onclick="useItem('${k}')"></button>`).join('');
 }
 
+$('name').addEventListener('keydown',e=>{if(e.key==='Enter')startGame()});
 const DIR={KeyW:'up',KeyA:'left',KeyS:'down',KeyD:'right',ArrowUp:'up',ArrowLeft:'left',ArrowDown:'down',ArrowRight:'right'};
 const DIRK={'w':'up','a':'left','s':'down','d':'right','arrowup':'up','arrowleft':'left','arrowdown':'down','arrowright':'right','ص':'up','ش':'left','س':'down','ي':'right'};
 const dirOf=e=>DIR[e.code]||DIRK[e.key.toLowerCase()];
+function keyAct(){
+ const g=G,p=g.p,R=g.round;
+ if(R===0){
+  if(p.hold){
+   const bi=BINS.findIndex(bx=>dist(p.x,p.y,bx+45,BY+55)<90);
+   if(bi>=0)binAct(bi);
+   else{p.hold.x=p.x;p.hold.y=p.y;g.items.push(p.hold);p.hold=null}
+  }else{
+   const it=g.items.find(i=>dist(p.x,p.y,i.x,i.y)<60);
+   if(it){g.items.splice(g.items.indexOf(it),1);p.hold=it}
+  }
+ }else if(R===1){
+  const j=SPOTS.findIndex((s,n)=>dist(p.x,p.y,s.x,s.y)<60&&!g.saplings.some(q=>q.i===n));
+  if(j>=0){g.saplings.push({i:j,w:false,g:0,gr:false});g.pts+=10;toast(T('planted'),1)}
+ }else if(R===2){
+  const s=g.saplings.find(q=>!q.w&&dist(p.x,p.y,SPOTS[q.i].x,SPOTS[q.i].y)<60);
+  if(s){s.w=true;toast(T('watered'),1)}
+ }
+}
 addEventListener('keydown',e=>{
- if(!running)return;
+ if(!running||!G)return;
  const k=e.key.toLowerCase(),d=dirOf(e);
- if(k===' '||d)e.preventDefault();
- if(k===' '){if(!G.space){G.space=true;onPress()}}
+ if(k===' '||d||k==='1'||k==='2')e.preventDefault();
+ if(mode!=='keys')return;
+ if(k===' '){if(document.activeElement)document.activeElement.blur();if(!G.space){G.space=true;keyAct()}}
  else if(k==='1'||k==='2')useItem(ITEMS[k-1]);
  else if(d)K[d]=true;
 });
@@ -189,42 +235,69 @@ addEventListener('keyup',e=>{
  const k=e.key.toLowerCase(),d=dirOf(e);
  if(k===' ')G.space=false;else if(d)K[d]=false;
 });
-$('name').addEventListener('keydown',e=>{if(e.key==='Enter')startGame()});
+function toggleMode(){setMode(mode==='mouse'?'keys':'mouse')}
+function setMode(m){
+ mode=m;K.up=K.down=K.left=K.right=false;
+ if(G){G.goal=null;G.ptr=false;G.space=false}
+ if(document.activeElement)document.activeElement.blur();
+}
 
-function onPress(){
- const p=G.p;
- if(G.round===0){
+function toWorld(e){
+ const r=cv.getBoundingClientRect(),s=Math.min(r.width/W,r.height/H);
+ return{x:(e.clientX-r.left-(r.width-W*s)/2)/s,y:(e.clientY-r.top-(r.height-H*s)/2)/s};
+}
+cv.addEventListener('pointerdown',e=>{
+ if(mode!=='mouse')return;
+ if(!running||!G||G.cine!=null||G.walk)return;
+ e.preventDefault();
+ G.ptr=true;
+ const w=toWorld(e);
+ tap(w.x,w.y);
+});
+addEventListener('pointerup',()=>{if(G)G.ptr=false});
+addEventListener('pointercancel',()=>{if(G)G.ptr=false});
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+
+function tap(x,y){
+ const g=G,p=g.p,R=g.round,go=(o,r,fn)=>{g.goal={o:{x:Math.min(940,Math.max(20,o.x)),y:Math.min(580,Math.max(40,o.y))},r,fn}};
+ const drop=()=>{if(p.hold){p.hold.x=p.x;p.hold.y=p.y;g.items.push(p.hold);p.hold=null}};
+ if(R===0){
   if(p.hold){
-   const bi=BINS.findIndex(bx=>dist(p.x,p.y,bx+45,BY+55)<90);
-   if(bi>=0){
-    if(TYPES[bi].t===p.hold.t){G.sorted++;G.pts+=10;toast(T('good'),1)}
-    else{
-     G.strikes++;
-     Object.assign(p.hold,{x:rnd(60,780),y:rnd(80,380)});
-     G.items.push(p.hold);
-     p.hold=null;
-     toast(T('bad'),0);
-     if(G.strikes>=3){finish('lives');return}
-     return;
-    }
-    p.hold=null;
-   }else{p.hold.x=p.x;p.hold.y=p.y;G.items.push(p.hold);p.hold=null}
-  }else{
-   const it=G.items.filter(i=>dist(p.x,p.y,i.x,i.y)<60)[0];
-   if(it){G.items.splice(G.items.indexOf(it),1);p.hold=it}
+   const bi=BINS.findIndex(bx=>dist(x,y,bx+45,BY+55)<90);
+   if(bi>=0)return go({x:BINS[bi]+45,y:BY+55},80,()=>binAct(bi));
+   if(g.items.some(i=>dist(x,y,i.x,i.y)<60))return toast(T('hold_first'),0);return go({x,y},4,drop);
   }
- }else if(G.round===1){
-  const j=SPOTS.findIndex((s,n)=>dist(p.x,p.y,s.x,s.y)<60&&!G.saplings.some(q=>q.i===n));
-  if(j>=0){G.saplings.push({i:j,w:false,g:0,gr:false});G.pts+=10;toast(T('planted'),1)}
- }else if(G.round===2){
-  const s=G.saplings.find(q=>!q.w&&dist(p.x,p.y,SPOTS[q.i].x,SPOTS[q.i].y)<60);
-  if(s){s.w=true;toast(T('watered'),1)}
+  const it=g.items.find(i=>dist(x,y,i.x,i.y)<60);
+  if(it)return go(it,40,()=>{if(!p.hold&&g.items.includes(it)){g.items.splice(g.items.indexOf(it),1);p.hold=it}});
+ }else if(R===1){
+  const j=SPOTS.findIndex((s,n)=>dist(x,y,s.x,s.y)<75&&!g.saplings.some(q=>q.i===n));
+  if(j>=0)return go(SPOTS[j],40,()=>{if(!g.saplings.some(q=>q.i===j)){g.saplings.push({i:j,w:false,g:0,gr:false});g.pts+=10;toast(T('planted'),1)}});
+ }else if(R===2){
+  const s=g.saplings.find(q=>!q.w&&dist(x,y,SPOTS[q.i].x,SPOTS[q.i].y)<75);
+  if(s)return go(SPOTS[s.i],40,()=>{if(!s.w){s.w=true;toast(T('watered'),1)}});
+ }else if(R===3&&(inBox({x,y},BUILD)||dist(x,y,BUILD.x+BUILD.w/2,BUILD.y+BUILD.h/2)<100)){
+  return go({x:BUILD.x+BUILD.w/2,y:BUILD.y+BUILD.h/2},4);
+ }
+ if(R>=1&&inBox({x,y},SHOP))return go({x:SHOP.x+60,y:SHOP.y+70},4);
+ go({x,y},4);
+}
+
+function binAct(bi){
+ const g=G,it=g.p.hold;
+ if(!it)return;
+ g.p.hold=null;
+ if(TYPES[bi].t===it.t){g.sorted++;g.pts+=10;toast(T('good'),1)}
+ else{
+  g.strikes++;
+  Object.assign(it,{x:rnd(60,780),y:rnd(80,380)});
+  g.items.push(it);
+  toast(T('bad'),0);
+  if(g.strikes>=3)finish('lives');
  }
 }
 
 function useItem(k){
  if(!running||G.inv[k]<=0)return;
- if(document.activeElement)document.activeElement.blur();
  if(k==='skip'){
   if(G.round<1||G.round>2)return;
   G.inv.skip--;G.round++;G.tl=60;toast(T('done'),1);return;
@@ -235,7 +308,6 @@ function useItem(k){
 
 function buy(k){
  if(!running)return;
- if(document.activeElement)document.activeElement.blur();
  if(G.pts<COST[k]){toast(T('nope'),0);return}
  G.pts-=COST[k];G.inv[k]++;toast(T('bought'),1);
 }
@@ -263,34 +335,40 @@ function checkRound(){
 }
 
 function update(dt){
- const p=G.p;
- G.total+=dt;
- if(G.cine!=null){G.cine+=dt;if(G.cine>=13){G.cine=null;G.walk=true}return}
- if(G.walk){
+ const g=G,p=g.p;
+ g.total+=dt;
+ if(g.cine!=null){g.cine+=dt;if(g.cine>=13){g.cine=null;g.walk=true}return}
+ if(g.walk){
   const dx=DOOR.x-p.x,dy=DOOR.y-p.y,d=Math.hypot(dx,dy),s=150*dt;
   if(d<=s){finish('win');return}
   p.x+=dx/d*s;p.y+=dy/d*s;
   return;
  }
- G.boost=Math.max(0,G.boost-dt);
- const dx=(K.right?1:0)-(K.left?1:0);
- const dy=(K.down?1:0)-(K.up?1:0);
- const m=dx&&dy?.707:1,sp=(G.boost>0?340:180)*dt*m;
- p.x=Math.min(940,Math.max(20,p.x+dx*sp));
- p.y=Math.min(580,Math.max(40,p.y+dy*sp));
- const inS=G.round>=1&&inBox(p,SHOP);
+ g.boost=Math.max(0,g.boost-dt);
+ if(mode==='keys'){
+  const dx=(K.right?1:0)-(K.left?1:0),dy=(K.down?1:0)-(K.up?1:0);
+  const m=dx&&dy?.707:1,sp=(g.boost>0?340:180)*dt*m;
+  p.x+=dx*sp;p.y+=dy*sp;
+ }else if(g.goal){
+  const{o,r,fn}=g.goal,dx=o.x-p.x,dy=o.y-p.y,d=Math.hypot(dx,dy);
+  if(d<=r){g.goal=null;fn&&fn()}
+  else{const st=Math.min((g.boost>0?340:180)*dt,d-r);p.x+=dx/d*st;p.y+=dy/d*st}
+ }
+ p.x=Math.min(940,Math.max(20,p.x));
+ p.y=Math.min(580,Math.max(40,p.y));
+ const inS=g.round>=1&&inBox(p,SHOP);
  $('shop').classList.toggle('hidden',!inS);
- if(inS&&!G.visited){G.visited=true;toast(T('shopOpen'),1)}
- G.saplings.forEach(s=>{if(s.w&&!s.gr){s.g+=dt;if(s.g>=3){s.gr=true;G.pts+=10;toast(T('grown'),1)}}});
- if(G.round===3&&G.space&&inBox(p,BUILD)&&G.built<1){
-  G.built=Math.min(1,G.built+dt/5);
-  if(G.built>=1){G.pts+=50;G.cine=0;G.npcs=makeNpcs();toast(T('built'),1)}
+ if(inS&&!g.visited){g.visited=true;toast(T('shopOpen'),1)}
+ g.saplings.forEach(s=>{if(s.w&&!s.gr){s.g+=dt;if(s.g>=3){s.gr=true;g.pts+=10;toast(T('grown'),1)}}});
+ if(g.round===3&&(g.ptr||g.space)&&inBox(p,BUILD)&&g.built<1){
+  g.built=Math.min(1,g.built+dt/5);
+  if(g.built>=1){g.pts+=50;g.cine=0;g.goal=null;g.ptr=false;g.npcs=makeNpcs();toast(T('built'),1)}
  }
  checkRound();
 }
 
 function finish(r){
- G.over=r;running=false;G.space=false;
+ G.over=r;running=false;G.ptr=false;
  if(r==='time')G.pts=0;
  show('end');showEnd();
 }
@@ -371,9 +449,6 @@ function draw(){
  }
  drawNpcs();
  drawShop();
- 
- 
- 
  TYPES.forEach((t,i)=>{
   const x=BINS[i];
   cx.fillStyle=t.c;cx.fillRect(x,BY,90,110);
@@ -386,10 +461,9 @@ function draw(){
   cx.fillStyle=it.c;cx.beginPath();cx.arc(it.x,it.y,19,0,Math.PI*2);cx.fill();
   emo(it.e,it.x,it.y,24);
  });
+ if(G.goal&&!G.walk){cx.strokeStyle='rgba(255,255,255,.85)';cx.lineWidth=2;cx.beginPath();cx.arc(G.goal.o.x,G.goal.o.y,12,0,Math.PI*2);cx.stroke()}
  cx.fillStyle='rgba(0,0,0,.2)';cx.beginPath();cx.ellipse(p.x,p.y+26,16,6,0,0,Math.PI*2);cx.fill();
  drawPlayer(p);
- 
- 
  if(p.hold){cx.fillStyle=p.hold.c;cx.beginPath();cx.arc(p.x,p.y-64,18,0,Math.PI*2);cx.fill();emo(p.hold.e,p.x,p.y-64,22)}
 }
 
@@ -409,13 +483,9 @@ function drawPlayer(p){
  cx.fillStyle='#f5f5f0';cx.strokeStyle='#b0b0a8';cx.lineWidth=1.5;
  cx.beginPath();cx.moveTo(x-12,y-8);cx.lineTo(x+12,y-8);cx.lineTo(x+18,y+26);cx.lineTo(x-18,y+26);cx.closePath();cx.fill();cx.stroke();
  cx.beginPath();cx.moveTo(x,y-8);cx.lineTo(x,y+8);cx.stroke();
- 
- 
- 
  cx.fillStyle='#d9a877';cx.beginPath();cx.arc(x,y-20,10,0,Math.PI*2);cx.fill();
  cx.fillStyle='#222';cx.beginPath();cx.arc(x-3.5,y-21,1.6,0,Math.PI*2);cx.arc(x+3.5,y-21,1.6,0,Math.PI*2);cx.fill();
  cx.fillStyle='#1a1a1a';cx.beginPath();cx.arc(x,y-20,11,Math.PI,0);cx.lineTo(x+10,y-23);cx.lineTo(x-10,y-23);cx.closePath();cx.fill();
- 
 }
 function makeNpcs(){
  const S=[{x:200,y:70,w:80,h:64,t:0,wall:'#f5e6c8',roof:'#c0392b'},{x:420,y:60,w:84,h:70,t:1,wall:'#7fb3d5',roof:'#566573'},{x:600,y:72,w:76,h:60,t:2,wall:'#82e0aa',roof:'#117a65'},{x:40,y:300,w:72,h:66,t:3,wall:'#c39bd3',roof:'#6c3483'},{x:830,y:232,w:74,h:62,t:4,wall:'#f8c471',roof:'#a04000'}];
@@ -468,9 +538,11 @@ function updateUI(){
  $('timer').classList.toggle('warn',g.tl<=10);
  $('lives').textContent='❤️'.repeat(3-g.strikes)+'🤍'.repeat(g.strikes);
  $('hold').textContent=g.p.hold?g.p.hold.e+' '+T('b_'+g.p.hold.t):T('none');
- ITEMS.forEach((k,i)=>{
+ $('modeBtn').textContent=T(mode==='mouse'?'mouse':'keys');
+ $('hint').textContent=T(mode==='mouse'?'hint_mouse':'hint_keys');
+ ITEMS.forEach(k=>{
   const b=$('i_'+k);
-  b.textContent=`${T('it_'+k)} ×${g.inv[k]} [${i+1}]`;
+  b.textContent=`${T('it_'+k)} ×${g.inv[k]}`;
   b.disabled=g.inv[k]<=0||(k==='skip'&&(g.round<1||g.round>2));
   $('b_'+k).disabled=g.pts<COST[k];
  });
